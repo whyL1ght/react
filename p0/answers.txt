@@ -1,0 +1,40 @@
+1. Variables and Data Types
+What is the difference between let and const? Let can change, const can't change
+What does typeof null return? It returns "object". This is a bug in JS
+What are the primitive types? string, number, boolean, null, undefined, symbol, bigint
+Note: I didn't expect typeof null to say "object", even though null is not an object
+
+5. Values and References
+What happens to original? original.score change too
+Why? Objects are stored by reference, not by value. Both variables point to the same object
+How to copy a nested object correctly? Copy the nested part too
+Note: Spread copies only the top-level object; the nested object remains shared.
+
+7. Functions as Values
+Can functions be stored in variables? Yes
+Can functions be passed to other functions? Yes, this is called a callback
+Difference between add and add()? add is the function itself. add() calls it and gives the result
+
+8. Scope
+Global scope - variables outside any function, can be used anywhere
+Function scope — variables inside a function, only visible inside it
+Block scope — variables inside {}, only visible inside that block
+var vs let vs const — var ignores blocks, let/const respect blocks. Let can change, const can't
+
+9. Closure
+Why the inner function can still access variables from the outer function? 
+    Because the inner function remembers where it was created. 
+    This is called a closure. Each call makes a new, separate variable.
+
+10. Destructuring, Spread and Rest
+Difference between spread and rest? 
+    Spread opens up an array or object into separate values. 
+    Rest collects separate values into one array. Same ... symbol, opposite direction.
+
+11. Optional Chaining and Default Values
+What happens with user.address.city if address doesn't exist? It throws an error
+How to fix it? Use user.address?.city. It returns undefined instead of an error
+Difference between || and ?? 
+|| replaces any falsy value (0, "", false, null, undefined). 
+?? replaces only null and undefined
+Note: ?? is safer with 0 or "", because || replace any falsy value
