@@ -1,16 +1,72 @@
-# React + Vite
+# Architecture Catalog
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Architecture Catalog is a React application for browsing heritage buildings
+used for measured drawing study. It includes a searchable and sortable
+collection, style filtering, pagination, building details, and a controlled
+form for adding buildings.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- 120 initial building records
+- Search by building name or city
+- Filter by architectural style
+- Sort by name, oldest, or newest
+- Pagination with 12 buildings per page
+- List and detail views
+- Controlled add-building form with validation
+- Loading, error, empty, and success states
+- Responsive layout for desktop and mobile
 
-## React Compiler
+## Data source
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+The project uses the provided simulated API in `src/api.js`. The initial
+records are generated in `src/data.js`, and browser `localStorage` is used to
+persist buildings added through the form.
 
-## Expanding the Oxlint configuration
+This means the initial catalog is available to every visitor, while buildings
+added by a user are saved only in that user's browser.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Tech stack
+
+- React
+- Vite
+- JavaScript
+- CSS
+
+## Run locally
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Create a production build:
+
+```bash
+npm run build
+```
+
+Run the linter:
+
+```bash
+npm run lint
+```
+
+## Deployment
+
+The application can be deployed with Vercel from the project directory:
+
+```bash
+npx vercel login
+npx vercel --prod
+```
+
+When deploying from the monorepo dashboard, use
+`midterm/arch-catalog` as the Root Directory.
