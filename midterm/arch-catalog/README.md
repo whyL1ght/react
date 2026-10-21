@@ -21,7 +21,7 @@ form for adding buildings.
 
 The project uses the provided simulated API in `src/api.js`. The initial
 records are generated in `src/data.js`, and browser `localStorage` is used to
-persist buildings added through the form.
+persist buildings added through the form. The data is madeup and not accurate
 
 This means the initial catalog is available to every visitor, while buildings
 added by a user are saved only in that user's browser.
