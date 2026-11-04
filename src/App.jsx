@@ -24,7 +24,9 @@ const router = createBrowserRouter([
       { path: "*", element: <NotFound /> },
     ],
   },
-]);
+], {
+  basename: "/react/games",
+});
 
 export default function App() {
   return (
