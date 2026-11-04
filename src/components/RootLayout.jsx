@@ -6,7 +6,9 @@ export default function RootLayout() {
   return (
     <>
       <NavBar />
-      <main className="container"><Outlet /></main>
+      <main className="container">
+        <Outlet />
+      </main>
       <footer>PIXEL QUEST · educational video game catalog</footer>
     </>
   );

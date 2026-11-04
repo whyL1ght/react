@@ -11,7 +11,11 @@ export default function Card({ game }) {
         <button
           className={`favorite-button ${isFavorite(game.id) ? "favorite" : ""}`}
           onClick={() => toggleFavorite(game.id)}
-          aria-label={isFavorite(game.id) ? `Remove ${game.name} from favorites` : `Add ${game.name} to favorites`}
+          aria-label={
+            isFavorite(game.id)
+              ? `Remove ${game.name} from favorites`
+              : `Add ${game.name} to favorites`
+          }
           type="button"
         >
           {isFavorite(game.id) ? "♥" : "♡"}
@@ -21,8 +25,13 @@ export default function Card({ game }) {
         <span className="tag">{game.genre}</span>
         <h3>{game.name}</h3>
         <p>{game.description}</p>
-        <div className="card-meta"><span>⭐ {game.rating}</span><span>{game.platform}</span></div>
-        <Link className="text-link" to={`/games/${game.id}`}>View details →</Link>
+        <div className="card-meta">
+          <span>⭐ {game.rating}</span>
+          <span>{game.platform}</span>
+        </div>
+        <Link className="text-link" to={`/games/${game.id}`}>
+          View details →
+        </Link>
       </div>
     </article>
   );

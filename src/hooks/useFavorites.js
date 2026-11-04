@@ -32,7 +32,8 @@ export function useFavorites() {
   useEffect(() => {
     const handleFavoritesChange = () => setFavoriteIds(readFavorites());
     window.addEventListener(FAVORITES_EVENT, handleFavoritesChange);
-    return () => window.removeEventListener(FAVORITES_EVENT, handleFavoritesChange);
+    return () =>
+      window.removeEventListener(FAVORITES_EVENT, handleFavoritesChange);
   }, []);
 
   return {

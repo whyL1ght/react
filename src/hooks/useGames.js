@@ -13,7 +13,8 @@ export function useGames(query) {
         if (active) setState({ ...result, loading: false, error: "" });
       })
       .catch((error) => {
-        if (active) setState({ data: [], loading: false, error: error.message });
+        if (active)
+          setState({ data: [], loading: false, error: error.message });
       });
 
     return () => {

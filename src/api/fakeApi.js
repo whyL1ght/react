@@ -4,8 +4,9 @@ import { initialDataSample } from "./initial-data-sample.js";
 function fakeRequest(operation) {
   return new Promise((resolve, reject) => {
     const delay =
-      Math.floor(Math.random() * (API_CONFIG.maxDelay - API_CONFIG.minDelay + 1)) +
-      API_CONFIG.minDelay;
+      Math.floor(
+        Math.random() * (API_CONFIG.maxDelay - API_CONFIG.minDelay + 1),
+      ) + API_CONFIG.minDelay;
 
     setTimeout(() => {
       if (Math.random() < API_CONFIG.errorChance) {
@@ -35,14 +36,21 @@ function initializeDatabase() {
     const migratedItems = [
       ...initialDataSample.map((sample) => {
         const savedItem = items.find((item) => item.id === sample.id);
-        return savedItem ? { ...sample, ...savedItem, ...getGameMetadata(sample) } : sample;
+        return savedItem
+          ? { ...sample, ...savedItem, ...getGameMetadata(sample) }
+          : sample;
       }),
-      ...items.filter((item) => !initialDataSample.some((sample) => sample.id === item.id)),
+      ...items.filter(
+        (item) => !initialDataSample.some((sample) => sample.id === item.id),
+      ),
     ];
 
     localStorage.setItem(DATA_KEY, JSON.stringify(migratedItems));
   } catch (error) {
-    console.error("Could not read saved game data. Resetting the local catalog.", error);
+    console.error(
+      "Could not read saved game data. Resetting the local catalog.",
+      error,
+    );
     localStorage.setItem(DATA_KEY, JSON.stringify(initialDataSample));
   }
 }
@@ -85,7 +93,13 @@ export async function getItemsList(query = "") {
     const totalPages = Math.ceil(total / limit);
     const start = (page - 1) * limit;
 
-    return { data: items.slice(start, start + limit), total, page, limit, totalPages };
+    return {
+      data: items.slice(start, start + limit),
+      total,
+      page,
+      limit,
+      totalPages,
+    };
   });
 }
 

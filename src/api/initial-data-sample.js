@@ -12,7 +12,8 @@ export const initialDataSample = [
   {
     id: 2,
     name: "Forest of Echoes",
-    description: "A peaceful adventure about a ranger, secrets, and ancient magic.",
+    description:
+      "A peaceful adventure about a ranger, secrets, and ancient magic.",
     genre: "Racing",
     platform: "PlayStation",
     rating: 8.2,
@@ -72,7 +73,8 @@ export const initialDataSample = [
   {
     id: 8,
     name: "Dungeon Tactics",
-    description: "Plan every move while your party explores a dangerous dungeon.",
+    description:
+      "Plan every move while your party explores a dangerous dungeon.",
     genre: "Strategy",
     platform: "Xbox",
     rating: 8.1,
@@ -82,7 +84,8 @@ export const initialDataSample = [
   {
     id: 9,
     name: "Ocean Quest",
-    description: "Dive below the waves and discover a colorful underwater world.",
+    description:
+      "Dive below the waves and discover a colorful underwater world.",
     genre: "Simulator",
     platform: "Nintendo",
     rating: 7.7,
@@ -92,7 +95,8 @@ export const initialDataSample = [
   {
     id: 10,
     name: "Turbo Circuit",
-    description: "Customize your car and become the fastest racer in the league.",
+    description:
+      "Customize your car and become the fastest racer in the league.",
     genre: "Racing",
     platform: "PlayStation",
     rating: 8.8,
@@ -112,7 +116,8 @@ export const initialDataSample = [
   {
     id: 12,
     name: "Garden Stories",
-    description: "Grow a magical garden and help friendly villagers rebuild their home.",
+    description:
+      "Grow a magical garden and help friendly villagers rebuild their home.",
     genre: "Simulator",
     platform: "Nintendo",
     rating: 7.9,
