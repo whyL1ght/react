@@ -1,0 +1,1 @@
+import{j as e,L as s}from"./index-ChBlg9X8.js";function o(){return e.jsxs("section",{className:"empty-page",children:[e.jsx("div",{children:"404"}),e.jsx("h1",{children:"This page does not exist"}),e.jsx("p",{children:"It looks like this level has not been created yet."}),e.jsx(s,{className:"button",to:"/",children:"Go home"})]})}export{o as default};
