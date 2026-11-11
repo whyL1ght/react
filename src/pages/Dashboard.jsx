@@ -9,9 +9,17 @@ export default function Dashboard() {
   const [error, setError] = useState("");
   const { favoriteIds } = useFavorites();
   useEffect(() => {
+    let active = true;
     fetchGames("?page=1&limit=100")
-      .then((result) => setGames(getAllGameFilters(result.data)))
-      .catch((e) => setError(e.message));
+      .then((result) => {
+        if (active) setGames(getAllGameFilters(result.data));
+      })
+      .catch((e) => {
+        if (active) setError(e.message);
+      });
+    return () => {
+      active = false;
+    };
   }, []);
   const filtered = games.filter(
     (game) => platform === "all" || game.platform === platform,

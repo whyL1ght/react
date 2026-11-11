@@ -5,3 +5,5 @@ export const API_CONFIG = {
   maxDelay: 900,
   errorChance: 0.05,
 };
+
+export const FAVORITES_KEY = "pixel-quest-favorites";

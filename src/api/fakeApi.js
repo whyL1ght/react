@@ -1,4 +1,4 @@
-import { API_CONFIG, DATA_KEY } from "./settings.js";
+import { API_CONFIG, DATA_KEY, FAVORITES_KEY } from "./settings.js";
 import { initialDataSample } from "./initial-data-sample.js";
 
 function fakeRequest(operation) {
@@ -33,17 +33,11 @@ function initializeDatabase() {
 
   try {
     const items = JSON.parse(savedData);
-    const migratedItems = [
-      ...initialDataSample.map((sample) => {
-        const savedItem = items.find((item) => item.id === sample.id);
-        return savedItem
-          ? { ...sample, ...savedItem, ...getGameMetadata(sample) }
-          : sample;
-      }),
-      ...items.filter(
-        (item) => !initialDataSample.some((sample) => sample.id === item.id),
-      ),
-    ];
+    // Do not add deleted sample games back, only refresh the sample metadata
+    const migratedItems = items.map((item) => {
+      const sample = initialDataSample.find((game) => game.id === item.id);
+      return sample ? { ...sample, ...item, ...getGameMetadata(sample) } : item;
+    });
 
     localStorage.setItem(DATA_KEY, JSON.stringify(migratedItems));
   } catch (error) {
@@ -108,5 +102,75 @@ export async function getItem(id) {
     const item = readData().find((game) => game.id === Number(id));
     if (!item) throw new Error("Game not found.");
     return item;
+  });
+}
+
+export async function updateItem(id, changes) {
+  return fakeRequest(() => {
+    const items = readData();
+    const index = items.findIndex((game) => game.id === Number(id));
+    if (index === -1) throw new Error("Game not found.");
+
+    items[index] = { ...items[index], ...changes };
+    localStorage.setItem(DATA_KEY, JSON.stringify(items));
+    return items[index];
+  });
+}
+
+export async function createItem(data) {
+  return fakeRequest(() => {
+    const items = readData();
+    const id = Math.max(0, ...items.map((game) => game.id)) + 1;
+    const newItem = { id, status: "In catalog", ...data };
+
+    localStorage.setItem(DATA_KEY, JSON.stringify([...items, newItem]));
+    return newItem;
+  });
+}
+
+export async function deleteItem(id) {
+  return fakeRequest(() => {
+    const items = readData();
+    if (!items.some((game) => game.id === Number(id))) {
+      throw new Error("Game not found.");
+    }
+
+    const rest = items.filter((game) => game.id !== Number(id));
+    localStorage.setItem(DATA_KEY, JSON.stringify(rest));
+  });
+}
+
+// Every logged-in user has their own favorites, guests share one list
+function getFavoritesKey(uid) {
+  return uid ? `${FAVORITES_KEY}-${uid}` : FAVORITES_KEY;
+}
+
+function readFavoriteIds(uid) {
+  try {
+    return JSON.parse(localStorage.getItem(getFavoritesKey(uid)) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+export async function getFavoriteIds(uid) {
+  return fakeRequest(() => readFavoriteIds(uid));
+}
+
+export async function getFavoriteItems(uid) {
+  return fakeRequest(() => {
+    const ids = readFavoriteIds(uid);
+    return readData().filter((game) => ids.includes(game.id));
+  });
+}
+
+export async function toggleFavoriteItem(uid, id) {
+  return fakeRequest(() => {
+    const ids = readFavoriteIds(uid);
+    const next = ids.includes(id)
+      ? ids.filter((favoriteId) => favoriteId !== id)
+      : [...ids, id];
+    localStorage.setItem(getFavoritesKey(uid), JSON.stringify(next));
+    return next;
   });
 }

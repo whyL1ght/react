@@ -1,9 +1,10 @@
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import Card from "../components/Card";
+import { useAuth } from "../context/AuthContext";
 import { useGames } from "../hooks/useGames";
-import { useFavorites } from "../hooks/useFavorites";
 
 export default function Games() {
+  const { user } = useAuth();
   const [params, setParams] = useSearchParams();
   const search = params.get("search") || "";
   const genre = params.get("genre") || "all";
@@ -11,16 +12,13 @@ export default function Games() {
   const sort = params.get("sort") || "name";
   const page = Number(params.get("page")) || 1;
   const pageSize = 6;
-  const favoritesOnly = params.get("favorites") === "true";
-  const { favoriteIds } = useFavorites();
   const { data, loading, error } = useGames(
     `?search=${encodeURIComponent(search)}&sort=${sort}&page=1&limit=100`,
   );
   const filteredGames = data.filter(
     (game) =>
       (genre === "all" || game.genre === genre) &&
-      (platform === "all" || game.platform === platform) &&
-      (!favoritesOnly || favoriteIds.includes(game.id)),
+      (platform === "all" || game.platform === platform),
   );
   const total = filteredGames.length;
   const totalPages = Math.ceil(total / pageSize);
@@ -44,7 +42,14 @@ export default function Games() {
           <p className="eyebrow">Collection</p>
           <h1>Games</h1>
         </div>
-        <span className="muted">{total} games found</span>
+        <div>
+          <span className="muted">{total} games found</span>{" "}
+          {user && (
+            <Link className="button" to="/games/new">
+              Add game
+            </Link>
+          )}
+        </div>
       </div>
       <div className="filters">
         <input
@@ -80,16 +85,6 @@ export default function Games() {
           <option value="name">A → Z</option>
           <option value="name-desc">Z → A</option>
         </select>
-        <label className="favorites-filter">
-          <input
-            type="checkbox"
-            checked={favoritesOnly}
-            onChange={(event) =>
-              update("favorites", event.target.checked ? "true" : "")
-            }
-          />{" "}
-          Favorites only
-        </label>
       </div>
       {loading && <p className="state">Loading games...</p>}
       {error && <p className="state error">{error}</p>}

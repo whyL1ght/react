@@ -1,44 +1,52 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { fetchFavoriteIds, toggleFavorite } from "../services/favoritesService";
 
-const FAVORITES_KEY = "pixel-quest-favorites";
-const FAVORITES_EVENT = "pixel-quest-favorites-changed";
-
-function readFavorites() {
-  try {
-    return JSON.parse(localStorage.getItem(FAVORITES_KEY) || "[]");
-  } catch {
-    return [];
-  }
-}
+export const FAVORITES_EVENT = "pixel-quest-favorites-changed";
 
 export function useFavorites() {
-  const [favoriteIds, setFavoriteIds] = useState(readFavorites);
+  const { user } = useAuth();
+  const uid = user?.uid;
+  const [favoriteIds, setFavoriteIds] = useState([]);
 
   useEffect(() => {
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favoriteIds));
-  }, [favoriteIds]);
+    let active = true;
 
-  function toggleFavorite(id) {
-    setFavoriteIds((current) => {
-      const next = current.includes(id)
+    function load() {
+      fetchFavoriteIds(uid)
+        .then((ids) => {
+          if (active) setFavoriteIds(ids);
+        })
+        .catch(() => {});
+    }
+
+    load();
+    window.addEventListener(FAVORITES_EVENT, load);
+    return () => {
+      active = false;
+      window.removeEventListener(FAVORITES_EVENT, load);
+    };
+  }, [uid]);
+
+  async function toggle(id) {
+    // Update the heart right away, the server answer comes later
+    setFavoriteIds((current) =>
+      current.includes(id)
         ? current.filter((favoriteId) => favoriteId !== id)
-        : [...current, id];
-      localStorage.setItem(FAVORITES_KEY, JSON.stringify(next));
-      window.dispatchEvent(new CustomEvent(FAVORITES_EVENT));
-      return next;
-    });
-  }
+        : [...current, id],
+    );
 
-  useEffect(() => {
-    const handleFavoritesChange = () => setFavoriteIds(readFavorites());
-    window.addEventListener(FAVORITES_EVENT, handleFavoritesChange);
-    return () =>
-      window.removeEventListener(FAVORITES_EVENT, handleFavoritesChange);
-  }, []);
+    try {
+      await toggleFavorite(uid, id);
+    } catch {
+      // On error the reload below restores the real list
+    }
+    window.dispatchEvent(new CustomEvent(FAVORITES_EVENT));
+  }
 
   return {
     favoriteIds,
     isFavorite: (id) => favoriteIds.includes(id),
-    toggleFavorite,
+    toggleFavorite: toggle,
   };
 }

@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { fetchGame } from "../services/service";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { deleteGame, fetchGame, updateGame } from "../services/service";
+import { useAuth } from "../context/AuthContext";
 import { useFavorites } from "../hooks/useFavorites";
 
 export default function ItemDetails() {
   const { id } = useParams();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [editing, setEditing] = useState(false);
+  const [description, setDescription] = useState("");
+  const [saveError, setSaveError] = useState("");
   const [state, setState] = useState({ game: null, loading: true, error: "" });
   useEffect(() => {
     let active = true;
@@ -21,6 +27,32 @@ export default function ItemDetails() {
       active = false;
     };
   }, [id]);
+  function startEditing() {
+    setDescription(state.game.description);
+    setSaveError("");
+    setEditing(true);
+  }
+
+  async function saveDescription() {
+    try {
+      const game = await updateGame(id, { description });
+      setState({ game, loading: false, error: "" });
+      setEditing(false);
+    } catch (error) {
+      setSaveError(error.message);
+    }
+  }
+
+  async function handleDelete() {
+    if (!window.confirm("Delete this game?")) return;
+    try {
+      await deleteGame(id);
+      navigate("/games");
+    } catch (error) {
+      setSaveError(error.message);
+    }
+  }
+
   if (state.loading) return <p className="state">Loading game...</p>;
   if (state.error)
     return (
@@ -54,7 +86,45 @@ export default function ItemDetails() {
             {isFavorite(game.id) ? "♥" : "♡"}
           </button>
         </div>
-        <p className="lead">{game.description}</p>
+        {editing ? (
+          <>
+            <textarea
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              rows={4}
+            />
+            {saveError && <p className="state error">{saveError}</p>}
+            <button className="button" type="button" onClick={saveDescription}>
+              Save
+            </button>{" "}
+            <button
+              className="button"
+              type="button"
+              onClick={() => setEditing(false)}
+            >
+              Cancel
+            </button>
+          </>
+        ) : (
+          <>
+            <p className="lead">{game.description}</p>
+            {user && (
+              <button className="button" type="button" onClick={startEditing}>
+                Edit description
+              </button>
+            )}
+            {user && (
+              <button
+                className="button secondary"
+                type="button"
+                onClick={handleDelete}
+              >
+                Delete game
+              </button>
+            )}
+            {saveError && <p className="state error">{saveError}</p>}
+          </>
+        )}
         <div className="details-grid">
           <div>
             <small>Rating</small>

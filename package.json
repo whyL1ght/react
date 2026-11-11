@@ -9,9 +9,10 @@
     "postbuild": "cp dist/index.html dist/404.html",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist --dest games --add"
+    "deploy": "gh-pages -d dist --dest firebase --add"
   },
   "dependencies": {
+    "firebase": "^13.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.28.0"
