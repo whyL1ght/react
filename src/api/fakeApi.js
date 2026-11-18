@@ -1,5 +1,7 @@
 import { API_CONFIG, DATA_KEY, FAVORITES_KEY } from "./settings.js";
 import { initialDataSample } from "./initial-data-sample.js";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { db } from "../firebase.js";
 
 function fakeRequest(operation) {
   return new Promise((resolve, reject) => {
@@ -169,25 +171,41 @@ function readFavoriteIds(uid) {
   }
 }
 
+// Logged-in users keep favorites in Firestore (collection "favorites", document = uid).
+// localStorage is a copy, it is used for guests and when there is no connection.
+async function loadFavoriteIds(uid) {
+  if (!uid) return readFavoriteIds(uid);
+
+  try {
+    const snapshot = await getDoc(doc(db, "favorites", uid));
+    // No document yet: keep the favorites that were saved on this device
+    const ids = snapshot.exists() ? snapshot.data().ids : readFavoriteIds(uid);
+    localStorage.setItem(getFavoritesKey(uid), JSON.stringify(ids));
+    return ids;
+  } catch {
+    return readFavoriteIds(uid);
+  }
+}
+
 export async function getFavoriteIds(uid) {
-  return fakeRequest(() => readFavoriteIds(uid));
+  return loadFavoriteIds(uid);
 }
 
 export async function getFavoriteItems(uid) {
+  const ids = await loadFavoriteIds(uid);
   await ensureCatalog();
-  return fakeRequest(() => {
-    const ids = readFavoriteIds(uid);
-    return readData().filter((game) => ids.includes(game.id));
-  });
+  return fakeRequest(() => readData().filter((game) => ids.includes(game.id)));
 }
 
 export async function toggleFavoriteItem(uid, id) {
-  return fakeRequest(() => {
-    const ids = readFavoriteIds(uid);
-    const next = ids.includes(id)
-      ? ids.filter((favoriteId) => favoriteId !== id)
-      : [...ids, id];
-    localStorage.setItem(getFavoritesKey(uid), JSON.stringify(next));
-    return next;
-  });
+  const ids = await loadFavoriteIds(uid);
+  const next = ids.includes(id)
+    ? ids.filter((favoriteId) => favoriteId !== id)
+    : [...ids, id];
+  localStorage.setItem(getFavoritesKey(uid), JSON.stringify(next));
+
+  // No await: without connection the write waits, and the page must not freeze
+  if (uid) setDoc(doc(db, "favorites", uid), { ids: next }).catch(() => {});
+
+  return next;
 }
