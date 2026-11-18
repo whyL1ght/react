@@ -23,13 +23,27 @@ function fakeRequest(operation) {
   });
 }
 
+// Public catalog request. It goes through the service worker (network-first),
+// so the answer stays available offline. Saved data is used only when
+// the local catalog is empty.
+async function ensureCatalog() {
+  let games = initialDataSample;
+  try {
+    const response = await fetch("/api/games.json");
+    if (response.ok) games = await response.json();
+  } catch (error) {
+    console.error("Could not load the public catalog.", error);
+  }
+
+  if (!localStorage.getItem(DATA_KEY)) {
+    localStorage.setItem(DATA_KEY, JSON.stringify(games));
+  }
+}
+
 function initializeDatabase() {
   const savedData = localStorage.getItem(DATA_KEY);
 
-  if (!savedData) {
-    localStorage.setItem(DATA_KEY, JSON.stringify(initialDataSample));
-    return;
-  }
+  if (!savedData) return;
 
   try {
     const items = JSON.parse(savedData);
@@ -66,6 +80,7 @@ function getGameMetadata(sample) {
 initializeDatabase();
 
 export async function getItemsList(query = "") {
+  await ensureCatalog();
   return fakeRequest(() => {
     const params = new URLSearchParams(query);
     const search = params.get("search")?.toLowerCase() || "";
@@ -98,6 +113,7 @@ export async function getItemsList(query = "") {
 }
 
 export async function getItem(id) {
+  await ensureCatalog();
   return fakeRequest(() => {
     const item = readData().find((game) => game.id === Number(id));
     if (!item) throw new Error("Game not found.");
@@ -158,6 +174,7 @@ export async function getFavoriteIds(uid) {
 }
 
 export async function getFavoriteItems(uid) {
+  await ensureCatalog();
   return fakeRequest(() => {
     const ids = readFavoriteIds(uid);
     return readData().filter((game) => ids.includes(game.id));

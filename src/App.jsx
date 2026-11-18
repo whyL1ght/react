@@ -4,6 +4,7 @@ import RootLayout from "./components/RootLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
 import Home from "./pages/Home";
+import Offline from "./pages/Offline";
 
 const Games = lazy(() => import("./pages/Games"));
 const ItemDetails = lazy(() => import("./pages/ItemDetails"));
@@ -21,6 +22,7 @@ const router = createBrowserRouter(
     {
       path: "/",
       element: <RootLayout />,
+      errorElement: <Offline />,
       children: [
         { index: true, element: <Home /> },
         { path: "about", element: <About /> },
@@ -36,6 +38,7 @@ const router = createBrowserRouter(
         { path: "games/:id", element: <ItemDetails /> },
         { path: "favorites", element: <Favorites /> },
         { path: "dashboard", element: <Dashboard /> },
+        { path: "offline", element: <Offline /> },
         { path: "login", element: <Login /> },
         { path: "signup", element: <Signup /> },
         {

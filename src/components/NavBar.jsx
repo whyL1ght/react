@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useOnlineStatus } from "../hooks/useOnlineStatus";
 
 const links = [
   ["/", "Home"],
@@ -12,6 +14,8 @@ const links = [
 export default function NavBar() {
   const { user, loading, logout } = useAuth();
   const navigate = useNavigate();
+  const online = useOnlineStatus();
+  const [open, setOpen] = useState(false);
 
   async function handleLogout() {
     if (await logout()) navigate("/login");
@@ -22,7 +26,18 @@ export default function NavBar() {
       <NavLink className="logo" to="/">
         PIXEL QUEST
       </NavLink>
-      <nav>
+      <span className={`status ${online ? "online" : "offline"}`}>
+        {online ? "Online" : "Offline"}
+      </span>
+      <button
+        className="menu-button"
+        type="button"
+        aria-label="Menu"
+        onClick={() => setOpen(!open)}
+      >
+        {open ? "✕" : "☰"}
+      </button>
+      <nav className={open ? "open" : ""} onClick={() => setOpen(false)}>
         {links.map(([to, label]) => (
           <NavLink
             key={to}

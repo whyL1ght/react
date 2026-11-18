@@ -346,20 +346,6 @@ footer {
   font-size: 13px;
 }
 @media (max-width: 720px) {
-  .navbar {
-    height: auto;
-    padding: 18px 20px;
-    align-items: flex-start;
-  }
-  .navbar nav {
-    gap: 10px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    font-size: 13px;
-  }
-  .navbar nav a:nth-child(4) {
-    display: none;
-  }
   .container {
     padding: 35px 18px;
   }
@@ -458,4 +444,167 @@ footer {
 }
 .details-title h1 {
   margin-bottom: 0;
+}
+
+/* PWA: status, update bar, offline */
+.status {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid #535a54;
+}
+.status.online {
+  color: #c5f26b;
+}
+.status.offline {
+  color: #ff9b88;
+}
+.offline-bar {
+  margin: 0;
+  padding: 10px 20px;
+  text-align: center;
+  background: #4a2a24;
+  color: #ffd2c8;
+  font-size: 14px;
+}
+.update-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  padding: 10px 20px;
+  background: #2b3a22;
+}
+.menu-button {
+  display: none;
+  background: none;
+  border: 1px solid #535a54;
+  border-radius: 8px;
+  color: #f5f2ea;
+  font-size: 22px;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+}
+.navbar nav button.login-link {
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Mobile */
+@media (max-width: 720px) {
+  .navbar {
+    position: relative;
+    height: 64px;
+    padding: 0 16px;
+  }
+  .status {
+    margin-left: auto;
+  }
+  .menu-button {
+    display: block;
+  }
+  .navbar nav {
+    display: none;
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    background: #121417;
+    border-bottom: 1px solid #33383a;
+    padding: 8px 16px 16px;
+    font-size: 16px;
+  }
+  .navbar nav.open {
+    display: flex;
+  }
+  .navbar nav a,
+  .navbar nav button {
+    padding: 12px 0;
+    min-height: 44px;
+    text-align: left;
+  }
+  .navbar nav .login-link {
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 8px;
+  }
+  .page h1 {
+    font-size: 36px;
+  }
+  .hero-actions {
+    flex-wrap: wrap;
+  }
+  .button,
+  .pagination button,
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+  }
+  .page-heading > select {
+    flex: none;
+  }
+  .filters {
+    grid-template-columns: 1fr;
+  }
+  .filters input {
+    grid-column: auto;
+  }
+  .auth-card {
+    padding: 22px;
+    margin: 20px auto;
+  }
+  .details-art {
+    height: 170px;
+  }
+  .details-title {
+    gap: 10px;
+  }
+  .details-content h1 {
+    font-size: 32px;
+    overflow-wrap: anywhere;
+  }
+  .info-box p {
+    gap: 10px;
+  }
+}
+@media (max-width: 400px) {
+  .stats,
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .navbar nav {
+    max-height: calc(100vh - 64px);
+    overflow-y: auto;
+  }
+}
+
+/* Keep the header text on one line on medium screens */
+.logo,
+.navbar nav a,
+.navbar nav button {
+  white-space: nowrap;
+}
+@media (min-width: 721px) and (max-width: 1000px) {
+  .navbar {
+    padding: 0 16px;
+    gap: 12px;
+  }
+  .navbar nav {
+    gap: 12px;
+    font-size: 14px;
+  }
+  .login-link {
+    padding: 6px 12px;
+  }
 }
