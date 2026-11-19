@@ -22,34 +22,39 @@ const router = createBrowserRouter(
     {
       path: "/",
       element: <RootLayout />,
-      errorElement: <Offline />,
+      // The error page is shown inside the layout, so the menu stays visible
       children: [
-        { index: true, element: <Home /> },
-        { path: "about", element: <About /> },
-        { path: "games", element: <Games /> },
         {
-          path: "games/new",
-          element: (
-            <ProtectedRoute>
-              <CreateGame />
-            </ProtectedRoute>
-          ),
+          errorElement: <Offline />,
+          children: [
+            { index: true, element: <Home /> },
+            { path: "about", element: <About /> },
+            { path: "games", element: <Games /> },
+            {
+              path: "games/new",
+              element: (
+                <ProtectedRoute>
+                  <CreateGame />
+                </ProtectedRoute>
+              ),
+            },
+            { path: "games/:id", element: <ItemDetails /> },
+            { path: "favorites", element: <Favorites /> },
+            { path: "dashboard", element: <Dashboard /> },
+            { path: "offline", element: <Offline /> },
+            { path: "login", element: <Login /> },
+            { path: "signup", element: <Signup /> },
+            {
+              path: "profile",
+              element: (
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              ),
+            },
+            { path: "*", element: <NotFound /> },
+          ],
         },
-        { path: "games/:id", element: <ItemDetails /> },
-        { path: "favorites", element: <Favorites /> },
-        { path: "dashboard", element: <Dashboard /> },
-        { path: "offline", element: <Offline /> },
-        { path: "login", element: <Login /> },
-        { path: "signup", element: <Signup /> },
-        {
-          path: "profile",
-          element: (
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          ),
-        },
-        { path: "*", element: <NotFound /> },
       ],
     },
   ],

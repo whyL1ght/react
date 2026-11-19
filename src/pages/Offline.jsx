@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { useOnlineStatus } from "../hooks/useOnlineStatus";
 
 export default function Offline() {
@@ -16,9 +15,9 @@ export default function Offline() {
       <button className="button" onClick={() => window.location.reload()}>
         Retry Connection
       </button>{" "}
-      <Link className="button secondary" to="/games">
+      <a className="button secondary" href="/games">
         Open games
-      </Link>
+      </a>
     </section>
   );
 }
