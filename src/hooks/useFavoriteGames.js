@@ -1,34 +1,26 @@
-import { useEffect, useState } from "react";
-import { fetchFavoriteGames } from "../services/favoritesService";
-import { FAVORITES_EVENT } from "./useFavorites";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { loadFavoriteGames } from "../features/favorites/favoritesSlice";
+import {
+  selectFavoriteGames,
+  selectFavoriteGamesError,
+  selectFavoriteGamesLoading,
+} from "../features/favorites/favoritesSelectors";
 
 export function useFavoriteGames(uid) {
-  const [state, setState] = useState({ data: [], loading: true, error: "" });
+  const dispatch = useDispatch();
+  const data = useSelector(selectFavoriteGames);
+  const loading = useSelector(selectFavoriteGamesLoading);
+  const error = useSelector(selectFavoriteGamesError);
 
   useEffect(() => {
-    if (!uid) return;
-    let active = true;
-    setState({ data: [], loading: true, error: "" });
+    if (uid) dispatch(loadFavoriteGames(uid));
+  }, [dispatch, uid]);
 
-    function load() {
-      fetchFavoriteGames(uid)
-        .then((data) => {
-          if (active) setState({ data, loading: false, error: "" });
-        })
-        .catch((error) => {
-          if (active)
-            setState({ data: [], loading: false, error: error.message });
-        });
-    }
-
-    load();
-    // Reload the list when the user adds or removes a favorite
-    window.addEventListener(FAVORITES_EVENT, load);
-    return () => {
-      active = false;
-      window.removeEventListener(FAVORITES_EVENT, load);
-    };
-  }, [uid]);
-
-  return state;
+  return {
+    data,
+    loading,
+    error,
+    retry: () => dispatch(loadFavoriteGames(uid)),
+  };
 }

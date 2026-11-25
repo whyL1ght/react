@@ -12,9 +12,11 @@
     "deploy": "gh-pages -d dist --dest firebase --add"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.15.0",
     "firebase": "^13.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-redux": "^9.3.1",
     "react-router-dom": "^6.28.0"
   },
   "devDependencies": {

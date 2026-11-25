@@ -1,26 +1,23 @@
-import { useEffect, useState } from "react";
-import { fetchGames } from "../services/service";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { loadGames } from "../features/games/gamesSlice";
+import {
+  selectGamesError,
+  selectGamesLoading,
+} from "../features/games/gamesSelectors";
 
 export function useGames(query) {
-  const [state, setState] = useState({ data: [], loading: true, error: "" });
+  const dispatch = useDispatch();
+  const loading = useSelector(selectGamesLoading);
+  const error = useSelector(selectGamesError);
 
   useEffect(() => {
-    let active = true;
-    setState({ data: [], loading: true, error: "" });
+    dispatch(loadGames(query));
+  }, [dispatch, query]);
 
-    fetchGames(query)
-      .then((result) => {
-        if (active) setState({ ...result, loading: false, error: "" });
-      })
-      .catch((error) => {
-        if (active)
-          setState({ data: [], loading: false, error: error.message });
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [query]);
-
-  return state;
+  return {
+    loading,
+    error,
+    retry: () => dispatch(loadGames(query)),
+  };
 }

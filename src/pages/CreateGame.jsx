@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { createGame } from "../services/service";
+import { addGame } from "../features/games/gamesSlice";
 
 export default function CreateGame() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -24,11 +26,13 @@ export default function CreateGame() {
     setError("");
     setSaving(true);
     try {
-      const game = await createGame({
-        ...form,
-        rating: Number(form.rating),
-        year: Number(form.year),
-      });
+      const game = await dispatch(
+        addGame({
+          ...form,
+          rating: Number(form.rating),
+          year: Number(form.year),
+        }),
+      ).unwrap();
       navigate(`/games/${game.id}`);
     } catch (err) {
       setError(err.message);

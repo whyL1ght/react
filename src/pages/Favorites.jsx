@@ -5,7 +5,12 @@ import { useFavoriteGames } from "../hooks/useFavoriteGames";
 
 export default function Favorites() {
   const { user, loading: authLoading } = useAuth();
-  const { data: favoriteGames, loading, error } = useFavoriteGames(user?.uid);
+  const {
+    data: favoriteGames,
+    loading,
+    error,
+    retry,
+  } = useFavoriteGames(user?.uid);
 
   if (authLoading) return <p className="state">Checking session...</p>;
 
@@ -29,7 +34,14 @@ export default function Favorites() {
         </div>
       </div>
       {loading && <p className="state">Loading games...</p>}
-      {error && <p className="state error">{error}</p>}
+      {error && (
+        <div className="state error">
+          <p>{error}</p>
+          <button className="button" type="button" onClick={retry}>
+            Try again
+          </button>
+        </div>
+      )}
       {!loading && !error && favoriteGames.length === 0 && (
         <p className="state">You have no favorite games yet.</p>
       )}

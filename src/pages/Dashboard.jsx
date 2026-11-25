@@ -1,30 +1,16 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { fetchGames, getAllGameFilters } from "../services/service";
-import { useFavorites } from "../hooks/useFavorites";
+import { useGames } from "../hooks/useGames";
+import { selectDashboardStats } from "../features/games/gamesSelectors";
+import { selectFavoritesCount } from "../features/favorites/favoritesSelectors";
 
 export default function Dashboard() {
-  const [games, setGames] = useState([]);
   const [platform, setPlatform] = useState("all");
-  const [error, setError] = useState("");
-  const { favoriteIds } = useFavorites();
-  useEffect(() => {
-    let active = true;
-    fetchGames("?page=1&limit=100")
-      .then((result) => {
-        if (active) setGames(getAllGameFilters(result.data));
-      })
-      .catch((e) => {
-        if (active) setError(e.message);
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
-  const filtered = games.filter(
-    (game) => platform === "all" || game.platform === platform,
-  );
-  const genres = [...new Set(filtered.map((game) => game.genre))];
+  const { error, retry } = useGames("?page=1&limit=100");
+  const stats = useSelector((state) => selectDashboardStats(state, platform));
+  const favoritesCount = useSelector(selectFavoritesCount);
+
   return (
     <section className="page">
       <div className="page-heading">
@@ -41,47 +27,50 @@ export default function Dashboard() {
         </select>
       </div>
       {error ? (
-        <p className="state error">{error}</p>
+        <div className="state error">
+          <p>{error}</p>
+          <button className="button" type="button" onClick={retry}>
+            Try again
+          </button>
+        </div>
       ) : (
         <>
           <div className="stats">
             <div>
-              <strong>{filtered.length}</strong>
+              <strong>{stats.total}</strong>
               <span>Games in view</span>
             </div>
             <div>
-              <strong>{genres.length}</strong>
+              <strong>{stats.genres.length}</strong>
               <span>Genres</span>
             </div>
             <div>
-              <strong>{new Set(filtered.map((g) => g.platform)).size}</strong>
+              <strong>{stats.platformsCount}</strong>
               <span>Platforms</span>
             </div>
             <div>
-              <strong>{favoriteIds.length}</strong>
+              <strong>{favoritesCount}</strong>
               <span>Favorites</span>
             </div>
           </div>
           <div className="breakdowns">
             <div className="info-box">
               <h2>Genres</h2>
-              {genres.map((genre) => (
-                <p key={genre}>
-                  <span>{genre}</span>
-                  <b>{filtered.filter((g) => g.genre === genre).length}</b>
+              {stats.genres.map((genre) => (
+                <p key={genre.name}>
+                  <span>{genre.name}</span>
+                  <b>{genre.count}</b>
                 </p>
               ))}
             </div>
             <div className="info-box">
               <h2>Popular games</h2>
-              {filtered
-                .filter((g) => g.status === "Popular")
-                .map((game) => (
-                  <p key={game.id}>
-                    <Link to={`/games/${game.id}`}>{game.name}</Link>
-                    <b>⭐ {game.rating}</b>
-                  </p>
-                ))}
+              {stats.popular.map((game) => (
+                <p key={game.id}>
+                  <Link to={`/games/${game.id}`}>{game.name}</Link>
+                  <b>⭐ {game.rating}</b>
+                </p>
+              ))}
             </div>
           </div>
         </>

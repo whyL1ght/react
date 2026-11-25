@@ -1,52 +1,17 @@
-import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useAuth } from "../context/AuthContext";
-import { fetchFavoriteIds, toggleFavorite } from "../services/favoritesService";
+import { switchFavorite } from "../features/favorites/favoritesSlice";
+import { selectFavoriteIds } from "../features/favorites/favoritesSelectors";
 
-export const FAVORITES_EVENT = "pixel-quest-favorites-changed";
-
+// Favorite ids are loaded once in RootLayout, here we only read and change them
 export function useFavorites() {
   const { user } = useAuth();
-  const uid = user?.uid;
-  const [favoriteIds, setFavoriteIds] = useState([]);
-
-  useEffect(() => {
-    let active = true;
-
-    function load() {
-      fetchFavoriteIds(uid)
-        .then((ids) => {
-          if (active) setFavoriteIds(ids);
-        })
-        .catch(() => {});
-    }
-
-    load();
-    window.addEventListener(FAVORITES_EVENT, load);
-    return () => {
-      active = false;
-      window.removeEventListener(FAVORITES_EVENT, load);
-    };
-  }, [uid]);
-
-  async function toggle(id) {
-    // Update the heart right away, the server answer comes later
-    setFavoriteIds((current) =>
-      current.includes(id)
-        ? current.filter((favoriteId) => favoriteId !== id)
-        : [...current, id],
-    );
-
-    try {
-      await toggleFavorite(uid, id);
-    } catch {
-      // On error the reload below restores the real list
-    }
-    window.dispatchEvent(new CustomEvent(FAVORITES_EVENT));
-  }
+  const dispatch = useDispatch();
+  const favoriteIds = useSelector(selectFavoriteIds);
 
   return {
     favoriteIds,
     isFavorite: (id) => favoriteIds.includes(id),
-    toggleFavorite: toggle,
+    toggleFavorite: (id) => dispatch(switchFavorite({ uid: user?.uid, id })),
   };
 }

@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { deleteGame, fetchGame, updateGame } from "../services/service";
+import { removeGame, saveGame } from "../features/gameDetails/gameDetailsSlice";
+import { useGame } from "../hooks/useGame";
 import { useAuth } from "../context/AuthContext";
 import { useFavorites } from "../hooks/useFavorites";
 
@@ -9,34 +11,21 @@ export default function ItemDetails() {
   const { isFavorite, toggleFavorite } = useFavorites();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { game, loading, error, retry } = useGame(id);
   const [editing, setEditing] = useState(false);
   const [description, setDescription] = useState("");
   const [saveError, setSaveError] = useState("");
-  const [state, setState] = useState({ game: null, loading: true, error: "" });
-  useEffect(() => {
-    let active = true;
-    setState({ game: null, loading: true, error: "" });
-    fetchGame(id)
-      .then((game) => active && setState({ game, loading: false, error: "" }))
-      .catch(
-        (error) =>
-          active &&
-          setState({ game: null, loading: false, error: error.message }),
-      );
-    return () => {
-      active = false;
-    };
-  }, [id]);
+
   function startEditing() {
-    setDescription(state.game.description);
+    setDescription(game.description);
     setSaveError("");
     setEditing(true);
   }
 
   async function saveDescription() {
     try {
-      const game = await updateGame(id, { description });
-      setState({ game, loading: false, error: "" });
+      await dispatch(saveGame({ id, changes: { description } })).unwrap();
       setEditing(false);
     } catch (error) {
       setSaveError(error.message);
@@ -46,25 +35,28 @@ export default function ItemDetails() {
   async function handleDelete() {
     if (!window.confirm("Delete this game?")) return;
     try {
-      await deleteGame(id);
+      await dispatch(removeGame(id)).unwrap();
       navigate("/games");
     } catch (error) {
       setSaveError(error.message);
     }
   }
 
-  if (state.loading) return <p className="state">Loading game...</p>;
-  if (state.error)
+  if (loading) return <p className="state">Loading game...</p>;
+  if (error)
     return (
       <section className="state error">
         <h1>Game not found</h1>
-        <p>{state.error}</p>
+        <p>{error}</p>
+        <button className="button" type="button" onClick={retry}>
+          Try again
+        </button>{" "}
         <Link className="button" to="/games">
           All games
         </Link>
       </section>
     );
-  const { game } = state;
+  if (!game) return null;
   return (
     <section className="details">
       <Link className="back-link" to="/games">

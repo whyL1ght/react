@@ -42,7 +42,3 @@ export async function deleteGame(id) {
   invalidatePrefix("games:");
   invalidatePrefix("favorites:games:");
 }
-
-export function getAllGameFilters(games) {
-  return games;
-}

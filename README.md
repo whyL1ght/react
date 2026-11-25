@@ -34,3 +34,55 @@ Favorites are also stored through the API layer (`src/api/fakeApi.js`).
 Cache keys are `favorites:ids:<uid>` and `favorites:games:<uid>`. They are
 invalidated when the user adds or removes a favorite, and the games lists are
 cleared when a game is created, edited or deleted.
+
+## Redux Toolkit
+
+Global data is kept in a Redux store (`src/store/store.js`), connected with
+`<Provider>` in `src/main.jsx`. Authentication stays in `AuthContext`, and
+temporary UI state (form fields, edit mode, dashboard platform filter) stays
+local in components. Search, filters, sorting and pagination stay in the URL.
+Search input is debounced (400 ms) before it goes to the URL.
+
+Folders:
+
+- `src/features/*` — slices, thunks and selectors
+- `src/services/*` — API calls with the in-memory cache
+- `src/hooks/*` — custom hooks that dispatch thunks and read state with `useSelector`
+- `src/pages/*`, `src/components/*` — UI
+
+### Slices
+
+- `games` — games list: `items`, `query`, `status`, `error`.
+- `gameDetails` — one opened game: `game`, `status`, `error`.
+- `favorites` — favorite ids of the current user and the list of favorite games.
+
+### Thunks (`createAsyncThunk`)
+
+- `loadGames(query)` — loads the list. `condition` skips the request if the same
+  query is already loading.
+- `loadGame(id)` — loads one game for the details page.
+- `saveGame({ id, changes })` — edits a game, then reloads the games list.
+- `removeGame(id)` — deletes a game, then reloads the games list.
+- `addGame(data)` — creates a game, then reloads the games list.
+- `loadFavoriteIds(uid)`, `loadFavoriteGames(uid)` — load favorites.
+- `switchFavorite({ uid, id })` — adds/removes a favorite. The heart changes
+  right away (in `pending`), goes back on error (in `rejected`), and the
+  favorite games are reloaded after success.
+
+All `pending`, `fulfilled` and `rejected` cases are handled in `extraReducers`.
+Every slice saves the `requestId` of the last request and ignores answers of
+older requests, so stale data cannot replace new data. Pages show loading,
+error with a "Try again" button, and an empty state.
+
+### Selectors
+
+- `selectGames`, `selectGamesLoading`, `selectGamesError` — simple selectors.
+- `selectFilteredGames(state, genre, platform)` — memoized with `createSelector`,
+  filters the list by genre and platform.
+- `selectDashboardStats(state, platform)` — memoized with `createSelector`,
+  counts games, genres, platforms and popular games for the dashboard.
+- `selectFavoriteIds`, `selectFavoritesCount`, `selectFavoriteGames` — favorites.
+
+Favorite ids are loaded once in `RootLayout` (and again when the user changes),
+so cards do not send their own requests. The service cache (1 minute) still
+prevents repeated API calls for the same data.
